@@ -1,0 +1,31 @@
+{
+  "name": "pimlico-proxy-server",
+  "version": "1.0.0",
+  "description": "独立Pimlico代理服务器，用于云服务器部署",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "NODE_ENV=development node server.js",
+    "pm2:start": "pm2 start ecosystem.config.js",
+    "pm2:stop": "pm2 stop pimlico-proxy",
+    "pm2:restart": "pm2 restart pimlico-proxy",
+    "pm2:logs": "pm2 logs pimlico-proxy"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5", 
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
+    "dotenv": "^16.3.1",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "pm2": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": ["pimlico", "proxy", "ethereum", "erc4337", "cloud"],
+  "author": "Your Name",
+  "license": "MIT"
+}

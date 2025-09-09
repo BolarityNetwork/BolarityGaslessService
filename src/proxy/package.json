@@ -1,0 +1,26 @@
+{
+  "name": "pimlico-proxy-server",
+  "version": "1.0.0",
+  "description": "Standalone proxy server for Pimlico API",
+  "main": "standalone-server.js",
+  "scripts": {
+    "start": "node standalone-server.js",
+    "dev": "NODE_ENV=development node standalone-server.js",
+    "pm2": "pm2 start standalone-server.js --name pimlico-proxy"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "node-fetch": "^2.6.7",
+    "dotenv": "^16.0.3"
+  },
+  "devDependencies": {
+    "pm2": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "keywords": ["pimlico", "proxy", "ethereum", "erc4337"],
+  "author": "",
+  "license": "MIT"
+}

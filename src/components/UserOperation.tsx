@@ -24,11 +24,12 @@ import {
 import { useSetActiveWallet } from "@privy-io/wagmi"
 
 // Blockchain
-import { useWalletClient } from "wagmi"
+// import { useWalletClient } from "wagmi" // Not used, using Privy wallet directly
 import {
     createPublicClient,
     createWalletClient,
     http,
+    custom,
     zeroAddress
 } from "viem"
 import { sepolia } from "viem/chains"
@@ -47,7 +48,7 @@ export function UserOperation() {
     const { signAuthorization } = useSignAuthorization()
 
     const { wallets } = useWallets()
-    const { data: walletClient } = useWalletClient()
+    // const { data: walletClient } = useWalletClient() // Using Privy wallet directly instead
 
     const embeddedWallet = useMemo(
         () => wallets.find((wallet) => wallet.walletClientType === "privy"),
@@ -72,15 +73,8 @@ export function UserOperation() {
         setError(null)
 
         try {
-            const pimlicoApiKey = process.env.NEXT_PUBLIC_PIMLICO_API_KEY
-
-            if (!pimlicoApiKey || pimlicoApiKey === "YOUR_PIMLICO_API_KEY") {
-                throw new Error(
-                    "Please set a valid Pimlico API key in your .env.local file"
-                )
-            }
-
-            const pimlicoUrl = `https://api.pimlico.io/v2/sepolia/rpc?apikey=${pimlicoApiKey}`
+            // Use secure proxy instead of exposing API key
+            const pimlicoUrl = process.env.NEXT_PUBLIC_PIMLICO_PROXY_URL ||'/api/pimlico-proxy'
 
             const publicClient = createPublicClient({
                 chain: sepolia,
@@ -91,19 +85,22 @@ export function UserOperation() {
                 transport: http(pimlicoUrl)
             })
 
-            // Get the Privy wallet provider
-            if (!walletClient) {
-                throw new Error("No wallet found")
-            }
+            // Create wallet client from Privy provider
+            const provider = await embeddedWallet.getEthereumProvider()
+            const walletClientFromPrivy = createWalletClient({
+                account: embeddedWallet.address as `0x${string}`,
+                chain: sepolia,
+                transport: custom(provider)
+            })
 
             const simpleSmartAccount = await toSimpleSmartAccount({
-                owner: walletClient,
+                owner: walletClientFromPrivy,
                 entryPoint: {
                     address: entryPoint08Address,
                     version: "0.8"
                 },
                 client: publicClient,
-                address: walletClient.account.address
+                address: walletClientFromPrivy.account.address
             })
 
             // Create the smart account client
@@ -124,7 +121,7 @@ export function UserOperation() {
                 contractAddress: "0xe6Cae83BdE06E4c305530e199D7217f42808555B",
                 chainId: sepolia.id,
                 nonce: await publicClient.getTransactionCount({
-                    address: walletClient.account.address
+                    address: walletClientFromPrivy.account.address
                 })
             })
 
